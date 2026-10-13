@@ -1,0 +1,10 @@
+{
+  "name": "xcel-routine-builder",
+  "private": true,
+  "type": "module",
+  "description": "Plan Xcel Gold gymnastics routines in the browser. No build step.",
+  "scripts": {
+    "start": "python3 serve.py 8000",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

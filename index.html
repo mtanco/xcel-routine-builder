@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Xcel Routine Builder</title>
+  <meta name="description" content="Plan Xcel Gold gymnastics routines: see every requirement, pick skills that fill them, and save meet-day and stretch-goal versions.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="#/vault">
+        <img src="assets/favicon.svg" alt="" width="28" height="28">
+        <span>Xcel Routine Builder</span>
+      </a>
+      <span class="level-pill" title="Only Xcel Gold is supported right now">Gold</span>
+    </div>
+    <nav class="wrap event-tabs" aria-label="Events" id="event-tabs"></nav>
+  </header>
+
+  <section class="plan-bar" aria-label="Routine plan">
+    <div class="wrap plan-row" id="plan-bar"></div>
+  </section>
+
+  <main id="main" class="wrap" tabindex="-1"></main>
+
+  <footer class="site-footer wrap">
+    <p>
+      Unofficial planning tool. Skill info is paraphrased from the
+      <a href="https://usagym.org/women/xcel/" target="_blank" rel="noopener">USA Gymnastics Xcel Code of Points</a>
+      and may contain mistakes: confirm with your coach and the current code before a meet.
+      Your plans are saved only in this browser.
+    </p>
+    <p class="footer-book">
+      Get the official Code of Points from the
+      <a href="https://usagym.org/store/" target="_blank" rel="noopener">USA Gymnastics store</a>.
+      This site is not affiliated with or endorsed by USA Gymnastics.
+    </p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // If the app fails to start (or crashes), show what went wrong instead of a blank page.
+    window.__showAppError = function (err) {
+      var main = document.getElementById('main');
+      if (!main || main.dataset.errorShown) return;
+      main.dataset.errorShown = '1';
+      var msg = (err && (err.message || err.reason && err.reason.message)) || String(err);
+      main.innerHTML = '<section class="panel app-error"><h2>Something went wrong</h2>'
+        + '<p>Try a hard refresh first (Cmd+Shift+R, or Ctrl+Shift+R on Windows).</p>'
+        + '<pre></pre>'
+        + '<p>If it keeps happening, clearing saved data usually fixes it. Use More, then Export first if you want a backup.</p>'
+        + '<button type="button" class="btn" id="reset-data">Clear saved data and reload</button></section>';
+      main.querySelector('pre').textContent = msg;
+      document.getElementById('reset-data').onclick = function () {
+        try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('xcel-routine-builder') === 0) localStorage.removeItem(k); }); } catch (e) {}
+        location.reload();
+      };
+    };
+    window.addEventListener('error', function (e) { window.__showAppError(e.error || e.message); });
+    window.addEventListener('unhandledrejection', function (e) { window.__showAppError(e.reason); });
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
