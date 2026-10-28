@@ -17,6 +17,7 @@
   --have: #1f7a4d;
   --learning: #2c62b5;
   --goal: #8a3ea8;
+  --uninterested: #6b6359;
   --radius: 14px;
   --radius-sm: 9px;
   --shadow: 0 1px 2px rgba(31, 27, 22, .05), 0 4px 16px rgba(31, 27, 22, .05);
@@ -43,6 +44,7 @@
     --have: #5fcf94;
     --learning: #7fb0ff;
     --goal: #d29bf0;
+    --uninterested: #a99f90;
     --shadow: none;
     color-scheme: dark;
   }
@@ -168,6 +170,7 @@ main { padding-top: 24px; padding-bottom: 40px; outline: none; }
 .chip-have { background: color-mix(in srgb, var(--have) 16%, transparent); color: var(--have); }
 .chip-learning { background: color-mix(in srgb, var(--learning) 16%, transparent); color: var(--learning); }
 .chip-goal { background: color-mix(in srgb, var(--goal) 16%, transparent); color: var(--goal); }
+.chip-uninterested { background: var(--surface-2); color: var(--uninterested); }
 .tag { background: var(--surface-2); color: var(--muted); font-weight: 600; vertical-align: 1px; }
 .tag-accent { background: var(--accent-soft); color: var(--accent-strong); }
 .status-badge { font-size: .8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
@@ -212,8 +215,14 @@ main { padding-top: 24px; padding-bottom: 40px; outline: none; }
 .status-btn.status-have.is-on { background: var(--have); border-color: var(--have); color: #fff; }
 .status-btn.status-learning.is-on { background: var(--learning); border-color: var(--learning); color: #fff; }
 .status-btn.status-goal.is-on { background: var(--goal); border-color: var(--goal); color: #fff; }
+.status-btn.status-uninterested.is-on { background: var(--uninterested); border-color: var(--uninterested); color: #fff; }
 @media (prefers-color-scheme: dark) { .status-btn.is-on { color: #111 !important; } }
 .empty-filter { margin-top: 14px; }
+.hidden-note { margin: 4px 0 0; font-size: .86rem; }
+.link-btn {
+  border: 0; background: none; padding: 0 2px; font: inherit; font-weight: 600;
+  color: var(--accent); text-decoration: underline; cursor: pointer; min-height: 24px;
+}
 
 /* ---------- Rules ---------- */
 .rules { margin-bottom: 18px; }

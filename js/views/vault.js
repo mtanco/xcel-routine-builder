@@ -2,11 +2,12 @@ import { VAULT_GOLD as DATA } from '../../data/gold/vault.js';
 import {
   findVault, checkRequirements,
 } from '../logic/vault.js';
-import { SKILL_STATUSES, skillKey } from '../store.js';
+import { skillKey } from '../store.js';
+import { statusCounts, filterItems, pickableItems } from '../logic/status.js';
 import { esc, fmt } from '../ui.js';
 import { startValue as svFor } from '../logic/vault.js';
 import {
-  rulesPanel as sharedRules, wireRules, collapsiblePanel, checklist, filterBar, statusGroup, statusChip, readyBadge, startValueMath,
+  rulesPanel as sharedRules, wireRules, collapsiblePanel, checklist, filterBar, getFilter, setFilter, emptyFilterText, statusGroup, statusChip, readyBadge, startValueMath,
 } from './shared.js';
 
 /** Shown in the plan bar next to the plan name. */
@@ -19,8 +20,7 @@ const SLOTS = [
   { id: 'vault2', label: 'Vault 2' },
 ];
 
-// View-only UI state (not saved): catalog filter.
-let filter = 'all';
+// View-only UI state (not saved).
 // null = follow the board choice (open when alternative is picked).
 let boardHelpOpen = null;
 
@@ -52,13 +52,20 @@ export function render(root, ctx) {
 // ---------- Sections ----------
 
 function slotsPanel(vp, statusOf) {
-  const options = (selected) => `
+  // Uninterested vaults are left out, unless already chosen for this slot.
+  const options = (selected) => {
+    const pickable = pickableItems(DATA.elements, (v) => statusOf(v.code), (v) => v.code === selected);
+    return `
     <option value="">None</option>
-    ${Object.entries(DATA.tiers).map(([tier, t]) => `
+    ${Object.entries(DATA.tiers).map(([tier, t]) => {
+      const list = pickable.filter((v) => v.tier === tier);
+      return list.length ? `
       <optgroup label="${esc(t.label)}">
-        ${DATA.elements.filter((v) => v.tier === tier).map((v) => `
+        ${list.map((v) => `
           <option value="${v.code}"${v.code === selected ? ' selected' : ''}>${esc(v.code)} ${esc(v.name)}</option>`).join('')}
-      </optgroup>`).join('')}`;
+      </optgroup>` : '';
+    }).join('')}`;
+  };
 
   return `
     <section class="panel" aria-labelledby="slots-h">
@@ -111,9 +118,9 @@ function requirementsPanel(vp) {
 }
 
 function catalogPanel(vp, statusOf) {
-  const counts = { all: DATA.elements.length };
-  SKILL_STATUSES.forEach((s) => { counts[s.id] = DATA.elements.filter((v) => statusOf(v.code) === s.id).length; });
-  const visible = DATA.elements.filter((v) => filter === 'all' || statusOf(v.code) === filter);
+  const filter = getFilter('vault');
+  const counts = statusCounts(DATA.elements, (v) => statusOf(v.code));
+  const visible = filterItems(DATA.elements, (v) => statusOf(v.code), filter);
 
   return `
     <section class="panel" aria-labelledby="cat-h">
@@ -121,14 +128,14 @@ function catalogPanel(vp, statusOf) {
         <h2 id="cat-h">Gold vault list</h2>
         <p class="muted">All ${DATA.elements.length} vaults allowed at Gold. Every one starts from 10.0, so a harder vault earns no extra credit here: pick the one you land cleanest. Grouping is a rough learning order, not official.</p>
       </div>
-      ${filterBar(filter, counts, 'Filter vaults')}
+      ${filterBar(filter, counts, 'Filter vaults', 'vault')}
       ${Object.entries(DATA.tiers).map(([tier, t]) => {
         const list = visible.filter((v) => v.tier === tier);
         if (!list.length) return '';
         return `
           <h3 class="tier-h">${esc(t.label)} <span class="muted">${esc(t.note)}</span></h3>
           <ul class="cards">${list.map((v) => vaultCard(v, vp, statusOf(v.code))).join('')}</ul>`;
-      }).join('') || '<p class="muted empty-filter">No vaults marked with this status yet.</p>'}
+      }).join('') || `<p class="muted empty-filter">${esc(emptyFilterText(filter, 'vaults'))}</p>`}
     </section>`;
 }
 
@@ -188,8 +195,8 @@ function wire(root, { plan, update }) {
   }));
 
   root.querySelectorAll('[data-filter]').forEach((b) => b.addEventListener('click', () => {
-    filter = b.dataset.filter;
-    update(() => {}, {});
+    setFilter('vault', b.dataset.filter);
+    update(() => {});
   }));
 
   const help = root.querySelector('#board-help');

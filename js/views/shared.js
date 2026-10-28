@@ -1,6 +1,7 @@
 // Pieces shared by the event pages.
 import { SKILL_STATUSES } from '../store.js';
 import { esc, fmt } from '../ui.js';
+import { FILTER_IDS, HIDDEN_STATUS, normalizeFilter } from '../logic/status.js';
 
 // ---- Per-viewer UI preferences. Storage can be unavailable (private mode), so never throw.
 const PREF = 'xcel-routine-builder:ui:';
@@ -51,18 +52,37 @@ export function checklist(reqs) {
     </ul>`;
 }
 
-/** All / Have / Learning / Goal filter chips. */
-export function filterBar(active, counts, label) {
+/** Saved skill-list filter for one event (per viewer). */
+export function getFilter(event) { return normalizeFilter(prefGet(`filter-${event}`)); }
+export function setFilter(event, f) { prefSet(`filter-${event}`, normalizeFilter(f)); }
+
+const FILTER_LABELS = {
+  all: 'All', ...Object.fromEntries(SKILL_STATUSES.map((s) => [s.id, s.short])), none: 'No status',
+};
+
+/** All / Have / Learning / Goal / Uninterested / No status filter chips, with counts. */
+export function filterBar(active, counts, label, noun = 'skill') {
+  const hidden = counts[HIDDEN_STATUS] ?? 0;
   return `
     <div class="filters" role="group" aria-label="${esc(label)}">
-      ${[{ id: 'all', short: 'All' }, ...SKILL_STATUSES].map((f) => `
-        <button type="button" id="filter-${f.id}" class="filter${active === f.id ? ' is-active' : ''}" data-filter="${f.id}" aria-pressed="${active === f.id}">
-          ${esc(f.short)} <span class="count">${counts[f.id] ?? 0}</span>
+      ${FILTER_IDS.map((id) => `
+        <button type="button" id="filter-${id}" class="filter filter-${id}${active === id ? ' is-active' : ''}" data-filter="${id}" aria-pressed="${active === id}">
+          ${esc(FILTER_LABELS[id])} <span class="count">${counts[id] ?? 0}</span>
         </button>`).join('')}
-    </div>`;
+    </div>
+    ${active === 'all' && hidden ? `
+      <p class="muted hidden-note">${hidden} uninterested ${hidden === 1 ? `${noun} is` : `${noun}s are`} hidden.
+        <button type="button" class="link-btn" id="show-hidden" data-filter="${HIDDEN_STATUS}">Show ${hidden === 1 ? 'it' : 'them'}</button></p>` : ''}`;
 }
 
-/** Have / Learning / Goal toggle buttons for one skill. */
+/** Empty-list message for the current filter. */
+export function emptyFilterText(active, noun = 'skills') {
+  if (active === 'all') return `Every ${noun.replace(/s$/, '')} is marked Uninterested. Pick the Uninterested filter to see them.`;
+  if (active === 'none') return `Every ${noun.replace(/s$/, '')} has a status.`;
+  return `No ${noun} marked with this status yet.`;
+}
+
+/** Have / Learning / Goal / Uninterested toggle buttons for one skill. */
 export function statusGroup(id, name, status) {
   return `
     <div class="status-group" role="group" aria-label="My status for ${esc(name)}">

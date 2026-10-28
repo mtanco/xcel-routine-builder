@@ -8,6 +8,8 @@ export const SKILL_STATUSES = [
   { id: 'have', label: 'Have it', short: 'Have' },
   { id: 'learning', label: 'Learning', short: 'Learning' },
   { id: 'goal', label: 'Goal', short: 'Goal' },
+  // Hidden from the default skill list and the "Add a skill" dropdowns.
+  { id: 'uninterested', label: 'Uninterested', short: 'Uninterested' },
 ];
 
 export const uid = () => Math.random().toString(36).slice(2, 9);

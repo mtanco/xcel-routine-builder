@@ -2,19 +2,17 @@ import { BEAM_GOLD as DATA } from '../../data/gold/beam.js';
 import {
   findSkill, resolve, startValue, entryValue, splitOption,
 } from '../logic/beam.js';
-import { SKILL_STATUSES, skillKey, uid } from '../store.js';
+import { skillKey, uid } from '../store.js';
+import { statusCounts, filterItems, pickableItems } from '../logic/status.js';
 import { esc, fmt } from '../ui.js';
 import {
-  rulesPanel, wireRules, checklist, filterBar, statusGroup, collapsiblePanel, statusChip, readyBadge, startValueMath,
+  rulesPanel, wireRules, checklist, filterBar, getFilter, setFilter, emptyFilterText, statusGroup, collapsiblePanel, statusChip, readyBadge, startValueMath,
 } from './shared.js';
 
 /** Shown in the plan bar next to the plan name. */
 export function headline(plan) {
   return { label: 'Start value', value: fmt(startValue(DATA, plan.events.beam.routine).value) };
 }
-
-// View-only UI state (not saved).
-let filter = 'all';
 
 export function render(root, ctx) {
   const { state, plan } = ctx;
@@ -44,12 +42,16 @@ export function render(root, ctx) {
 
 // ---------- Your routine ----------
 
-function skillOptions() {
-  return Object.entries(DATA.families).map(([fam, f]) => `
+function skillOptions(statusOf) {
+  const pickable = pickableItems(DATA.elements, (e) => statusOf(e.id));
+  return Object.entries(DATA.families).map(([fam, f]) => {
+    const list = pickable.filter((e) => e.family === fam);
+    return list.length ? `
     <optgroup label="${esc(f.label)}">
-      ${DATA.elements.filter((e) => e.family === fam).map((e) => `
+      ${list.map((e) => `
         <option value="${esc(e.id)}">${esc(e.name)} (${e.split ? 'A or B' : e.value})</option>`).join('')}
-    </optgroup>`).join('');
+    </optgroup>` : '';
+  }).join('');
 }
 
 function tags(skill) {
@@ -110,7 +112,7 @@ function routinePanel(routine, sv, statusOf) {
 
       <div class="add-row">
         <label class="sr-only" for="add-skill">Add a skill</label>
-        <select id="add-skill"><option value="">Add a skill…</option>${skillOptions()}</select>
+        <select id="add-skill"><option value="">Add a skill…</option>${skillOptions(statusOf)}</select>
         <button type="button" class="btn btn-primary" id="add-btn">Add</button>
       </div>
       ${rows.length ? '<button type="button" class="btn btn-ghost btn-sm" id="clear-routine">Clear routine</button>' : ''}
@@ -145,9 +147,9 @@ function requirementsPanel(sv) {
 // ---------- Skill list ----------
 
 function catalogPanel(routine, statusOf) {
-  const counts = { all: DATA.elements.length };
-  SKILL_STATUSES.forEach((s) => { counts[s.id] = DATA.elements.filter((e) => statusOf(e.id) === s.id).length; });
-  const visible = DATA.elements.filter((e) => filter === 'all' || statusOf(e.id) === filter);
+  const filter = getFilter('beam');
+  const counts = statusCounts(DATA.elements, (e) => statusOf(e.id));
+  const visible = filterItems(DATA.elements, (e) => statusOf(e.id), filter);
   const inRoutine = {};
   routine.forEach((r) => { inRoutine[r.id] = (inRoutine[r.id] || 0) + 1; });
 
@@ -164,7 +166,7 @@ function catalogPanel(routine, statusOf) {
         return `
           <h3 class="tier-h">${esc(f.label)} <span class="muted">${esc(f.note)}</span></h3>
           <ul class="cards">${list.map((e) => skillCard(e, statusOf(e.id), inRoutine[e.id] || 0)).join('')}</ul>`;
-      }).join('') || '<p class="muted empty-filter">No skills marked with this status yet.</p>'}
+      }).join('') || `<p class="muted empty-filter">${esc(emptyFilterText(filter))}</p>`}
     </section>`;
 }
 
@@ -237,7 +239,7 @@ function wire(root, { plan, update }) {
   }));
 
   root.querySelectorAll('[data-filter]').forEach((b) => b.addEventListener('click', () => {
-    filter = b.dataset.filter;
+    setFilter('beam', b.dataset.filter);
     update(() => {});
   }));
 
