@@ -2,7 +2,7 @@
 
 A free, no-login web app for planning **USA Gymnastics Xcel Gold** routines. For each event it lists the requirements and every allowed skill. You pick skills to build a routine and mark which ones you have, are learning, or are working toward.
 
-**Try it:** https://mtanco.github.io/xcel-routine-builder/
+**Try it:** https://xcelroutines.com/
 
 **Status:** All four Gold events are done: Vault, Bars, Beam, and Floor. Some skill values still need checking against the full Code of Points (marked "check value" in the app, and tracked in the issues).
 
@@ -39,7 +39,9 @@ npm test
 
 1. Push this repo to GitHub.
 2. Go to **Settings → Pages**. Under **Build and deployment**, set **Source: Deploy from a branch**, then **Branch: `main`**, folder **`/ (root)`**.
-3. After about a minute the site is live at `https://<your-username>.github.io/xcel-routine-builder/` (this repo: https://mtanco.github.io/xcel-routine-builder/).
+3. After about a minute the site is live at `https://<your-username>.github.io/xcel-routine-builder/`.
+
+This repo uses the custom domain **https://xcelroutines.com/**, set by the `CNAME` file and in **Settings → Pages → Custom domain**. If you fork it, delete `CNAME` so your copy uses your own `github.io` address.
 
 All paths are relative, so the app works from that sub-path as-is. The empty `.nojekyll` file tells GitHub Pages to serve the files exactly as they are.
 
