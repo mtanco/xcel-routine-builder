@@ -312,6 +312,8 @@ main { padding-top: 24px; padding-bottom: 40px; outline: none; }
 .sv-line.minus { color: var(--todo); }
 .sv-line.total { font-weight: 750; font-size: 1.05rem; border-top: 1px solid var(--line); margin-top: 6px; padding-top: 8px; }
 .site-footer .footer-book { border-top: 0; padding-top: 8px; }
+.site-footer .footer-tip { border-top: 0; padding-top: 8px; }
+.site-footer .footer-tip a { font-weight: 600; }
 
 /* ---------- Collapsible panels (requirements) ---------- */
 .collapsible > summary { cursor: pointer; list-style: none; margin-bottom: 0; }

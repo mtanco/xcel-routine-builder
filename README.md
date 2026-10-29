@@ -96,6 +96,10 @@ This is an unofficial fan tool, not affiliated with or endorsed by USA Gymnastic
 
 Ideas and fixes are welcome. See the open issues for what's next. If you own the Code of Points, the data-check issue is the most helpful place to start.
 
+## Support
+
+The app is free, with no ads or accounts. If it helps you, you can [buy me a coffee on Ko-fi](https://ko-fi.com/xcelroutines) to cover the domain.
+
 ## License
 
 MIT
